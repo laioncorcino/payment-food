@@ -3,7 +3,6 @@ package com.corcino.payment_food.application.handler;
 import com.corcino.payment_food.domain.dto.ErrorResponse;
 import com.corcino.payment_food.domain.dto.ValidationErrorResponse;
 import com.corcino.payment_food.domain.exception.EntityNotFoundException;
-import com.corcino.payment_food.domain.exception.InvalidFieldException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,18 +29,6 @@ public class ExceptionControllerHandler {
                 .build();
 
         return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
-    }
-
-    @ExceptionHandler(InvalidFieldException.class)
-    public ResponseEntity<ErrorResponse> handleNotFound(InvalidFieldException exception) {
-        ErrorResponse error = ErrorResponse.builder()
-                .title("Invalid field - Check documentation")
-                .status(HttpStatus.BAD_REQUEST.value())
-                .errorMessage(exception.getMessage())
-                .dateTime(getDateTime())
-                .build();
-
-        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

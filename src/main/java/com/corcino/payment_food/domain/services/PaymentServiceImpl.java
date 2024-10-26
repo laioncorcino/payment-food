@@ -22,11 +22,12 @@ import java.util.Optional;
 public class PaymentServiceImpl implements PaymentService {
 
     private final PaymentRepository paymentRepository;
-    private final ModelMapper mapper = new ModelMapper();
+    private final ModelMapper mapper;
 
     @Autowired
-    public PaymentServiceImpl(PaymentRepository paymentRepository) {
+    public PaymentServiceImpl(PaymentRepository paymentRepository, ModelMapper mapper) {
         this.paymentRepository = paymentRepository;
+        this.mapper = mapper;
     }
 
     public PaymentResponse create(PaymentRequest paymentRequest) {

@@ -10,23 +10,28 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.UriComponentsBuilder;
+
+import java.net.URI;
 
 import static org.springframework.data.domain.Sort.Direction.ASC;
 
 @RestController
-@RequestMapping("api/v1/payment")
+@RequestMapping("/api/v1/payment")
 public class PaymentController {
 
     private final PaymentService paymentService;
 
     @Autowired
-    public PaymentController(PaymentServiceImpl paymentService) {
+    public PaymentController(PaymentService paymentService) {
         this.paymentService = paymentService;
     }
 
     @PostMapping
-    public ResponseEntity<PaymentResponse> createPayment(@RequestBody PaymentRequest paymentRequest) {
-        return ResponseEntity.ok(paymentService.create(paymentRequest));
+    public ResponseEntity<PaymentResponse> createPayment(@RequestBody PaymentRequest paymentRequest, UriComponentsBuilder uriBuilder) {
+        PaymentResponse paymentResponse = paymentService.create(paymentRequest);
+        URI path = uriBuilder.path("/api/v1/payment/{id}").buildAndExpand(paymentResponse.getPaymentId()).toUri();
+        return ResponseEntity.created(path).body(paymentResponse);
     }
 
     @GetMapping

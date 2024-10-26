@@ -1,1 +1,13 @@
-spring.application.name=payment-food
+spring:
+  application:
+    name: payment-food
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost/payment_db
+    username: root
+    password: root
+  jpa:
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
