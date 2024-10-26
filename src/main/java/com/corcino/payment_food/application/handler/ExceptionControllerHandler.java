@@ -1,0 +1,72 @@
+package com.corcino.payment_food.application.handler;
+
+import com.corcino.payment_food.domain.dto.ErrorResponse;
+import com.corcino.payment_food.domain.dto.ValidationErrorResponse;
+import com.corcino.payment_food.domain.exception.EntityNotFoundException;
+import com.corcino.payment_food.domain.exception.InvalidFieldException;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
+@RestControllerAdvice
+@Slf4j
+public class ExceptionControllerHandler {
+
+    @ExceptionHandler(EntityNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleNotFound(EntityNotFoundException exception) {
+        ErrorResponse error = ErrorResponse.builder()
+                .title("Resource Not Found")
+                .status(HttpStatus.NOT_FOUND.value())
+                .errorMessage(exception.getMessage())
+                .dateTime(getDateTime())
+                .build();
+
+        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(InvalidFieldException.class)
+    public ResponseEntity<ErrorResponse> handleNotFound(InvalidFieldException exception) {
+        ErrorResponse error = ErrorResponse.builder()
+                .title("Invalid field - Check documentation")
+                .status(HttpStatus.BAD_REQUEST.value())
+                .errorMessage(exception.getMessage())
+                .dateTime(getDateTime())
+                .build();
+
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException methodArgumentException) {
+        List<ValidationErrorResponse> validations = new ArrayList<>();
+        List<FieldError> fieldErrors = methodArgumentException.getBindingResult().getFieldErrors();
+
+        fieldErrors.forEach(fieldError -> {
+            validations.add(ValidationErrorResponse.builder()
+                    .title("Invalid field - Check documentation")
+                    .status(HttpStatus.BAD_REQUEST.value())
+                    .errorMessage(fieldError.getDefaultMessage())
+                    .dateTime(getDateTime())
+                    .field(fieldError.getField())
+                    .build()
+            );
+
+            log.error("There is error in field {} to create or update resource", fieldError.getField());
+        });
+
+        return new ResponseEntity<>(validations, HttpStatus.BAD_REQUEST);
+    }
+
+    private LocalDateTime getDateTime() {
+        return LocalDateTime.now();
+    }
+
+}
